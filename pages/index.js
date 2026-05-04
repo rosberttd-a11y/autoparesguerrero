@@ -24,6 +24,8 @@ function WaIcon({s=20,c="#fff"}){return <svg width={s} height={s} viewBox="0 0 2
 
 function Counter({end,suffix=""}){const[v,setV]=useState(0);const ref=useRef(null);const started=useRef(false);useEffect(()=>{const o=new IntersectionObserver(([e])=>{if(e.isIntersecting&&!started.current){started.current=true;let s=0;const d=1500/end;const t=setInterval(()=>{s++;setV(s);if(s>=end)clearInterval(t)},d)}},{threshold:0.5});if(ref.current)o.observe(ref.current);return()=>o.disconnect()},[end]);return <span ref={ref}>{v}{suffix}</span>}
 
+function useMob(){const[m,setM]=useState(false);useEffect(()=>{const c=()=>setM(window.innerWidth<768);c();window.addEventListener("resize",c);return()=>window.removeEventListener("resize",c)},[]);return m}
+
 function Card({p,onClick}){const[h,setH]=useState(false);return(
 <div onClick={()=>onClick(p)} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{background:"#111",border:"1px solid "+(h?"rgba(204,0,0,0.5)":"#1a1a1a"),cursor:"pointer",transition:"all 0.4s cubic-bezier(0.16,1,0.3,1)",transform:h?"translateY(-8px)":"translateY(0)",boxShadow:h?"0 24px 48px rgba(204,0,0,0.1)":"0 2px 8px rgba(0,0,0,0.4)",overflow:"hidden"}}>
 <div style={{position:"relative",width:"100%",aspectRatio:"1",overflow:"hidden"}}>
@@ -43,7 +45,7 @@ function Detail({p,onBack,related}){const[l,setL]=useState(false);useEffect(()=>
 <div style={{opacity:l?1:0,transform:l?"translateY(0)":"translateY(30px)",transition:"all 0.5s cubic-bezier(0.16,1,0.3,1)"}}>
 <button onClick={onBack} style={{background:"none",border:"1px solid #222",color:"#666",fontFamily:"'Barlow Condensed',sans-serif",fontSize:13,fontWeight:500,letterSpacing:1.5,padding:"10px 24px",cursor:"pointer",textTransform:"uppercase",marginBottom:40,transition:"all 0.3s",display:"flex",alignItems:"center",gap:8}} onMouseEnter={e=>{e.currentTarget.style.borderColor="#CC0000";e.currentTarget.style.color="#fff"}} onMouseLeave={e=>{e.currentTarget.style.borderColor="#222";e.currentTarget.style.color="#666"}}>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Volver</button>
-<div style={{display:"grid",gridTemplateColumns:"1.2fr 1fr",gap:60,maxWidth:1000}}>
+<div style={{display:"grid",gridTemplateColumns:mob?"1fr":"1.2fr 1fr",gap:mob?24:60,maxWidth:1000}}>
 <div style={{aspectRatio:"1",border:"1px solid #1a1a1a",overflow:"hidden",position:"relative"}}><img src={p.img} alt={p.name} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
 <div style={{position:"absolute",top:16,left:16,background:"rgba(204,0,0,0.9)",padding:"5px 14px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:12,fontWeight:500,letterSpacing:1.5,textTransform:"uppercase",color:"#fff"}}>{p.catL}</div></div>
 <div style={{display:"flex",flexDirection:"column",justifyContent:"center"}}>
@@ -70,6 +72,7 @@ const[hl,setHl]=useState(false);
 const[search,setSearch]=useState("");
 const[brand,setBrand]=useState("");
 const[model,setModel]=useState("");
+const mob=useMob();
 useEffect(()=>{setTimeout(()=>setHl(true),100)},[]);
 const fp=products.filter(p=>(ac==="todos"||p.cat===ac)&&p.name.toLowerCase().includes(search.toLowerCase()));
 const related=sel?products.filter(r=>r.cat===sel.cat&&r.id!==sel.id).slice(0,3):[];
@@ -81,10 +84,10 @@ return(
 
 
 {/* HEADER */}
-<header style={{position:"fixed",top:0,left:0,right:0,zIndex:100,padding:"0 40px",height:64,display:"flex",justifyContent:"space-between",alignItems:"center",background:"rgba(8,8,8,0.9)",backdropFilter:"blur(20px)",borderBottom:"1px solid rgba(204,0,0,0.08)"}}>
-<div style={{display:"flex",alignItems:"center",gap:12}}>
-<img src={IMG_LOGO} alt="AG" style={{height:36,width:"auto"}}/>
-<span style={{fontFamily:a,fontSize:13,letterSpacing:4,textTransform:"uppercase"}}>Autopartes Guerrero</span>
+<header style={{position:"fixed",top:0,left:0,right:0,zIndex:100,padding:mob?"0 16px":"0 40px",height:60,display:"flex",justifyContent:"space-between",alignItems:"center",background:"rgba(8,8,8,0.9)",backdropFilter:"blur(20px)",borderBottom:"1px solid rgba(204,0,0,0.08)"}}>
+<div style={{display:"flex",alignItems:"center",gap:mob?8:12}}>
+<img src={IMG_LOGO} alt="AG" style={{height:mob?28:36,width:"auto"}}/>
+{!mob&&<span style={{fontFamily:a,fontSize:13,letterSpacing:4,textTransform:"uppercase"}}>Autopartes Guerrero</span>}
 </div>
 <div style={{display:"flex",alignItems:"center",gap:20}}>
 <div style={{display:"flex",alignItems:"center",gap:5,fontFamily:f,fontSize:12,color:"#666",letterSpacing:1.5,textTransform:"uppercase"}}>
@@ -95,28 +98,29 @@ return(
 {!sel?(
 <>
 {/* HERO */}
-<section style={{minHeight:"100vh",display:"flex",position:"relative",overflow:"hidden"}}>
+<section style={{minHeight:"100vh",display:"flex",flexDirection:mob?"column":"row",position:"relative",overflow:"hidden"}}>
 <div style={{position:"absolute",inset:0,zIndex:0,backgroundImage:`url(${IMG_FONDO})`,backgroundSize:"cover",backgroundPosition:"center",opacity:0.3}}/>
-<div style={{position:"absolute",inset:0,zIndex:0,background:"linear-gradient(90deg,rgba(8,8,8,0.95) 0%,rgba(8,8,8,0.7) 50%,rgba(8,8,8,0.9) 100%)"}}/>
+<div style={{position:"absolute",inset:0,zIndex:0,background:mob?"linear-gradient(180deg,rgba(8,8,8,0.92) 0%,rgba(8,8,8,0.8) 50%,rgba(8,8,8,0.95) 100%)":"linear-gradient(90deg,rgba(8,8,8,0.95) 0%,rgba(8,8,8,0.7) 50%,rgba(8,8,8,0.9) 100%)"}}/>
 
 {/* LEFT - Text */}
-<div style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"center",padding:"0 40px 0 72px",position:"relative",zIndex:2,opacity:hl?1:0,transform:hl?"translateX(0)":"translateX(-40px)",transition:"all 1s cubic-bezier(0.16,1,0.3,1) 0.2s"}}>
-<div style={{fontFamily:f,fontSize:11,fontWeight:500,letterSpacing:6,color:"#CC0000",textTransform:"uppercase",marginBottom:24,display:"flex",alignItems:"center",gap:12}}><div style={{width:28,height:1,background:"#CC0000"}}/>Repuestos automotrices</div>
-<h1 style={{fontFamily:a,fontSize:"clamp(48px,7vw,80px)",lineHeight:0.92,letterSpacing:2,textTransform:"uppercase",margin:0}}>AUTO<br/>PARTES<br/><span style={{WebkitTextStroke:"2px #CC0000",color:"transparent",display:"inline-block",marginTop:4}}>GUERRERO</span></h1>
-<p style={{fontFamily:f,fontSize:16,fontWeight:300,color:"#666",letterSpacing:1,lineHeight:1.7,maxWidth:360,margin:"28px 0 36px"}}>Encuentra el repuesto exacto para tu vehículo. Calidad garantizada con despachos a todo Caracas.</p>
-<div style={{display:"flex",gap:14,alignItems:"center",flexWrap:"wrap"}}>
+<div style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"center",padding:mob?"100px 24px 40px":"0 40px 0 72px",position:"relative",zIndex:2,textAlign:mob?"center":"left",opacity:hl?1:0,transform:hl?"translateX(0)":"translateX(-40px)",transition:"all 1s cubic-bezier(0.16,1,0.3,1) 0.2s"}}>
+<div style={{fontFamily:f,fontSize:11,fontWeight:500,letterSpacing:6,color:"#CC0000",textTransform:"uppercase",marginBottom:24,display:"flex",alignItems:"center",gap:12,justifyContent:mob?"center":"flex-start"}}><div style={{width:28,height:1,background:"#CC0000"}}/>Repuestos automotrices</div>
+<h1 style={{fontFamily:a,fontSize:mob?"clamp(36px,10vw,52px)":"clamp(48px,7vw,80px)",lineHeight:0.92,letterSpacing:2,textTransform:"uppercase",margin:0}}>AUTO<br/>PARTES<br/><span style={{WebkitTextStroke:"2px #CC0000",color:"transparent",display:"inline-block",marginTop:4}}>GUERRERO</span></h1>
+<p style={{fontFamily:f,fontSize:mob?14:16,fontWeight:300,color:"#666",letterSpacing:1,lineHeight:1.7,maxWidth:mob?"100%":360,margin:mob?"20px auto 28px":"28px 0 36px"}}>Encuentra el repuesto exacto para tu vehículo. Calidad garantizada con despachos a todo Caracas.</p>
+<div style={{display:mob?"none":"flex",gap:14,alignItems:"center",flexWrap:"wrap"}}>
 <a href="#catalogo" onClick={e=>{e.preventDefault();document.getElementById("catalogo")?.scrollIntoView({behavior:"smooth"})}} style={{fontFamily:a,fontSize:13,letterSpacing:3,textTransform:"uppercase",color:"#fff",background:"#CC0000",padding:"14px 36px",textDecoration:"none",cursor:"pointer",transition:"all 0.3s",display:"inline-flex",alignItems:"center",gap:10}} onMouseEnter={e=>e.currentTarget.style.background="#a00"} onMouseLeave={e=>e.currentTarget.style.background="#CC0000"}>Ver catálogo<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
 <a href={`https://wa.me/${W}`} target="_blank" rel="noopener noreferrer" style={{fontFamily:a,fontSize:13,letterSpacing:3,textTransform:"uppercase",color:"#888",border:"1px solid #333",padding:"13px 28px",textDecoration:"none",cursor:"pointer",transition:"all 0.3s"}} onMouseEnter={e=>{e.currentTarget.style.borderColor="#25D366";e.currentTarget.style.color="#25D366"}} onMouseLeave={e=>{e.currentTarget.style.borderColor="#333";e.currentTarget.style.color="#888"}}>WhatsApp</a>
 </div>
-<div style={{display:"flex",gap:40,marginTop:56,borderTop:"1px solid #1a1a1a",paddingTop:28}}>
+<div style={{display:"flex",gap:mob?24:40,marginTop:mob?32:56,borderTop:"1px solid #1a1a1a",paddingTop:mob?20:28,justifyContent:mob?"center":"flex-start"}}>
+
 {[{e:500,s:"+",l:"Productos"},{e:10,s:"+",l:"Años"},{e:100,s:"%",l:"Garantía"}].map(x=>(
-<div key={x.l}><div style={{fontFamily:a,fontSize:26,color:"#CC0000"}}><Counter end={x.e} suffix={x.s}/></div><div style={{fontFamily:f,fontSize:11,color:"#555",letterSpacing:2,textTransform:"uppercase",marginTop:4}}>{x.l}</div></div>
+<div key={x.l}><div style={{fontFamily:a,fontSize:mob?22:26,color:"#CC0000"}}><Counter end={x.e} suffix={x.s}/></div><div style={{fontFamily:f,fontSize:mob?10:11,color:"#555",letterSpacing:2,textTransform:"uppercase",marginTop:4}}>{x.l}</div></div>
 ))}</div>
 </div>
 
 {/* RIGHT - Vehicle Search Form */}
-<div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",position:"relative",zIndex:2,padding:"0 48px",opacity:hl?1:0,transform:hl?"translateX(0)":"translateX(40px)",transition:"all 1s cubic-bezier(0.16,1,0.3,1) 0.4s"}}>
-<div style={{background:"rgba(17,17,17,0.85)",border:"1px solid #222",padding:"36px 32px",width:"100%",maxWidth:420,backdropFilter:"blur(10px)"}}>
+<div style={{flex:mob?"none":1,display:"flex",alignItems:"center",justifyContent:"center",position:"relative",zIndex:2,padding:mob?"0 24px 60px":"0 48px",opacity:hl?1:0,transform:hl?"translateX(0)":"translateX(40px)",transition:"all 1s cubic-bezier(0.16,1,0.3,1) 0.4s"}}>
+<div style={{background:"rgba(17,17,17,0.85)",border:"1px solid #222",padding:mob?"28px 20px":"36px 32px",width:"100%",maxWidth:420,backdropFilter:"blur(10px)"}}>
 <div style={{fontFamily:a,fontSize:20,letterSpacing:2,textTransform:"uppercase",marginBottom:6}}>Busca tu repuesto</div>
 <div style={{fontFamily:f,fontSize:13,fontWeight:300,color:"#666",marginBottom:28}}>Selecciona tu vehículo y encuentra lo que necesitas</div>
 <div style={{display:"flex",flexDirection:"column",gap:14}}>
@@ -146,12 +150,12 @@ return(
 </div></section>
 
 {/* WHY US */}
-<section style={{padding:"80px 40px",maxWidth:1000,margin:"0 auto"}}>
-<div style={{textAlign:"center",marginBottom:48}}>
+<section style={{padding:mob?"60px 24px":"80px 40px",maxWidth:1000,margin:"0 auto"}}>
+<div style={{textAlign:"center",marginBottom:mob?32:48}}>
 <div style={{fontFamily:f,fontSize:12,fontWeight:500,letterSpacing:4,color:"#CC0000",textTransform:"uppercase",marginBottom:8}}>¿Por qué elegirnos?</div>
-<h2 style={{fontFamily:a,fontSize:36,textTransform:"uppercase",margin:0}}>Tu taller de confianza</h2>
+<h2 style={{fontFamily:a,fontSize:mob?28:36,textTransform:"uppercase",margin:0}}>Tu taller de confianza</h2>
 </div>
-<div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:32}}>
+<div style={{display:"grid",gridTemplateColumns:mob?"1fr":"repeat(3,1fr)",gap:mob?20:32}}>
 {[{icon:"M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",t:"Calidad garantizada",d:"Repuestos originales y de alta calidad con garantía en cada producto."},{icon:"M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z",t:"Envíos a Caracas",d:"Despachos rápidos y seguros a toda la ciudad y zonas aledañas."},{icon:"M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z",t:"Atención personalizada",d:"Asesoría directa por WhatsApp. Respuesta inmediata a tus consultas."}].map(x=>(
 <div key={x.t} style={{textAlign:"center",padding:"32px 20px",border:"1px solid #1a1a1a",transition:"all 0.3s"}} onMouseEnter={e=>e.currentTarget.style.borderColor="rgba(204,0,0,0.3)"} onMouseLeave={e=>e.currentTarget.style.borderColor="#1a1a1a"}>
 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#CC0000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:16}}><path d={x.icon}/></svg>
@@ -161,7 +165,7 @@ return(
 ))}</div></section>
 
 {/* CATALOG */}
-<section id="catalogo" style={{padding:"40px 40px 120px",maxWidth:1200,margin:"0 auto"}}>
+<section id="catalogo" style={{padding:mob?"40px 16px 80px":"40px 40px 120px",maxWidth:1200,margin:"0 auto"}}>
 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:32,flexWrap:"wrap",gap:24}}>
 <div>
 <div style={{fontFamily:f,fontSize:12,fontWeight:500,letterSpacing:4,color:"#CC0000",textTransform:"uppercase",marginBottom:8,display:"flex",alignItems:"center",gap:10}}><div style={{width:24,height:1,background:"#CC0000"}}/>Nuestros productos</div>
@@ -178,22 +182,22 @@ return(
 {/* Filters */}
 <div style={{display:"flex",gap:6,marginBottom:40,flexWrap:"wrap"}}>
 {cats.map(c=>(
-<button key={c.id} onClick={()=>setAc(c.id)} style={{background:ac===c.id?"#CC0000":"transparent",border:"1px solid "+(ac===c.id?"#CC0000":"#222"),color:ac===c.id?"#fff":"#666",fontFamily:f,fontSize:13,fontWeight:500,letterSpacing:1.5,textTransform:"uppercase",padding:"10px 28px",cursor:"pointer",transition:"all 0.3s"}} onMouseEnter={e=>{if(ac!==c.id){e.currentTarget.style.borderColor="#CC0000";e.currentTarget.style.color="#ccc"}}} onMouseLeave={e=>{if(ac!==c.id){e.currentTarget.style.borderColor="#222";e.currentTarget.style.color="#666"}}}>{c.l}</button>
+<button key={c.id} onClick={()=>setAc(c.id)} style={{background:ac===c.id?"#CC0000":"transparent",border:"1px solid "+(ac===c.id?"#CC0000":"#222"),color:ac===c.id?"#fff":"#666",fontFamily:f,fontSize:mob?11:13,fontWeight:500,letterSpacing:1.5,textTransform:"uppercase",padding:mob?"8px 16px":"10px 28px",cursor:"pointer",transition:"all 0.3s"}} onMouseEnter={e=>{if(ac!==c.id){e.currentTarget.style.borderColor="#CC0000";e.currentTarget.style.color="#ccc"}}} onMouseLeave={e=>{if(ac!==c.id){e.currentTarget.style.borderColor="#222";e.currentTarget.style.color="#666"}}}>{c.l}</button>
 ))}</div>
 
-<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:24}}>
+<div style={{display:"grid",gridTemplateColumns:mob?"repeat(auto-fill,minmax(160px,1fr))":"repeat(auto-fill,minmax(300px,1fr))",gap:mob?12:24}}>
 {fp.map(p=><Card key={p.id} p={p} onClick={setSel}/>)}
 </div>
 {fp.length===0&&<div style={{textAlign:"center",padding:60,fontFamily:f,fontSize:16,color:"#555"}}>No se encontraron productos</div>}
 </section>
 </>
 ):(
-<div style={{padding:"120px 40px 80px",maxWidth:1200,margin:"0 auto"}}><Detail p={sel} onBack={()=>setSel(null)} related={related}/></div>
+<div style={{padding:mob?"100px 16px 60px":"120px 40px 80px",maxWidth:1200,margin:"0 auto"}}><Detail p={sel} onBack={()=>setSel(null)} related={related}/></div>
 )}
 
 {/* FOOTER */}
-<footer style={{borderTop:"1px solid #111",padding:"48px 40px"}}>
-<div style={{maxWidth:1200,margin:"0 auto",display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:32,alignItems:"start"}}>
+<footer style={{borderTop:"1px solid #111",padding:mob?"36px 20px":"48px 40px"}}>
+<div style={{maxWidth:1200,margin:"0 auto",display:"grid",gridTemplateColumns:mob?"1fr":"1fr 1fr 1fr",gap:mob?28:32,alignItems:"start"}}>
 <div>
 <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}><img src={IMG_LOGO} alt="AG" style={{height:28}}/><span style={{fontFamily:a,fontSize:12,letterSpacing:3,textTransform:"uppercase"}}>Autopartes Guerrero</span></div>
 <p style={{fontFamily:f,fontSize:13,fontWeight:300,color:"#555",lineHeight:1.7}}>Repuestos automotrices de calidad para vehículos Renault y más.</p>
